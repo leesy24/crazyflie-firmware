@@ -31,6 +31,7 @@
 
 #include "deck.h"
 #include "system.h"
+#include "uart1.h"
 #include "debug.h"
 #include "log.h"
 #include "param.h"
@@ -167,6 +168,8 @@ bool vl53l0xTest(void)
 
 void vl53l0xTask(void* arg)
 {
+  DEBUG_PRINT("vl53l0xTask started!\n");
+
   systemWaitStart();
   TickType_t xLastWakeTime;
 
@@ -176,6 +179,7 @@ void vl53l0xTask(void* arg)
   while (1) {
     xLastWakeTime = xTaskGetTickCount();
     range_last = vl53l0xReadRangeContinuousMillimeters();
+    uart1Printf("distance=%d\r\n", range_last);
 
     // check if range is feasible and push into the kalman filter
     // the sensor should not be able to measure >3 [m], and outliers typically

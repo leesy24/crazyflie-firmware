@@ -24,6 +24,7 @@
  */
 /* flowdeck.c: Flow deck driver */
 #include "deck.h"
+#include "uart1.h"
 #include "debug.h"
 #include "system.h"
 #include "log.h"
@@ -251,14 +252,22 @@ static void InitRegisters()
   registerWrite(0x54, 0x00);
 }
 
+static int accX = 0;
+static int accY = 0;
+
 static void pamotionTask(void *param)
 {
+  DEBUG_PRINT("pamotionTask started!\n");
+
   systemWaitStart();
 
   while(1) {
     vTaskDelay(10);
 
     readMotion(&currentMotion);
+    accX += currentMotion.deltaX;
+    accY += currentMotion.deltaY;
+    uart1Printf("PosXY=\t%d\t%d\t%d\t%d\r\n", accX, accY, currentMotion.deltaX, currentMotion.deltaY);
 
     // Flip motion information to comply with sensor mounting
     // (might need to be changed if mounted diffrently)
@@ -313,6 +322,8 @@ static void pamotionTask(void *param)
 static void pamotionInit()
 {
   if (isInit) return;
+
+  uart1Init(115200);
 
   // Initialize the VL53 sensor using the zRanger deck driver
   const DeckDriver *zRanger = deckFindDriverByName("bcZRanger");
