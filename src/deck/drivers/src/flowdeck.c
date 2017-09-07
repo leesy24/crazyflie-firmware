@@ -252,6 +252,7 @@ static void InitRegisters()
   registerWrite(0x54, 0x00);
 }
 
+extern uint16_t range_last;
 static int accX = 0;
 static int accY = 0;
 
@@ -262,12 +263,12 @@ static void pamotionTask(void *param)
   systemWaitStart();
 
   while(1) {
-    vTaskDelay(10);
+    vTaskDelay(100);
 
     readMotion(&currentMotion);
     accX += currentMotion.deltaX;
     accY += currentMotion.deltaY;
-    uart1Printf("PosXY=\t%d\t%d\t%d\t%d\r\n", accX, accY, currentMotion.deltaX, currentMotion.deltaY);
+    uart1Printf("Dist_PosXY=\t%d\t%d\t%d\t%d\t%d\r\n", range_last, accX, accY, currentMotion.deltaX, currentMotion.deltaY);
 
     // Flip motion information to comply with sensor mounting
     // (might need to be changed if mounted diffrently)
